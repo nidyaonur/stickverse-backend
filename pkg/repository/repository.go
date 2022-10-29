@@ -88,7 +88,7 @@ func (r *Repo) CloseDBConnection() {
 }
 
 func (r *Repo) Insert(i interface{}) (interface{}, error) {
-	err := r.db.Create(i).Error
+	err := r.db.Clauses(clause.OnConflict{UpdateAll: true}).Create(i).Error
 	return i, err
 }
 
