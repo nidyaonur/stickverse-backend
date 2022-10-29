@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net"
 	"time"
@@ -36,6 +37,13 @@ func accessibleRoles() map[string][]string {
 
 func main() {
 	env := env.GetEnvironment()
+	content, err := ioutil.ReadFile(".env")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(string(content))
 	pp.Print(env)
 
 	// Database
