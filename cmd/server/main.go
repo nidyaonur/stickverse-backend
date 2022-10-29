@@ -7,6 +7,7 @@ import (
 	"net"
 	"time"
 
+	"github.com/k0kubun/pp"
 	"github.com/nidyaonur/stickverse-backend/chat"
 	"github.com/nidyaonur/stickverse-backend/internal/auth"
 	"github.com/nidyaonur/stickverse-backend/internal/data"
@@ -35,6 +36,7 @@ func accessibleRoles() map[string][]string {
 
 func main() {
 	env := env.GetEnvironment()
+	pp.Print(env)
 
 	// Database
 	repo := repository.NewRepository(env.WriterDBUrl)
