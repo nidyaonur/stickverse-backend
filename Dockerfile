@@ -2,13 +2,13 @@
 FROM golang:1.18-alpine3.15 AS builder
 WORKDIR /app
 COPY . .
-RUN go get google.golang.org/grpc/internal/channelz@v1.47.0
+RUN cd cmd/server && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /server .
+WORKDIR /app
 RUN go build -o main main.go
 
 # Run stage
 FROM alpine:3.15
-WORKDIR /app
-COPY --from=builder /app/main .
+COPY --from=0 server .
 COPY .env .
 
 EXPOSE 8080
