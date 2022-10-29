@@ -17,6 +17,7 @@ jobs:
         envkey_DEBUG: true
         envkey_RDS_WRITER_URL: ${{ secrets.RDS_WRITER_URL }}
         envkey_RDS_READER_URL: ${{ secrets.RDS_READER_URL }}
+        envkey_DB_URL: ${{ secrets.DB_URL }}
         file_name: .env
         fail_on_empty: false
 
