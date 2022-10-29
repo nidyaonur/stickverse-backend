@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: stickverse-api-service
+  namespace: dev
+spec:
+  type: LoadBalancer
+  selector:
+    app: stickverse-api
+  ports:
+    - protocol: TCP
+      name: http
+      port: 80
+      targetPort: 8080

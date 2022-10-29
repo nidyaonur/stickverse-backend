@@ -1,0 +1,7 @@
+bases:
+ - ../../application
+
+namespace: dev
+
+patchesStrategicMerge:
+  - replica-count.yaml

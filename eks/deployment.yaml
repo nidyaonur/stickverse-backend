@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stickverse-api
+  labels:
+    app: stickverse-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stickverse-api
+  template:
+    metadata:
+      labels:
+        app: stickverse-api
+    spec:
+      containers:
+      - name: stickverse
+        image: 766386820142.dkr.ecr.eu-central-1.amazonaws.com/stickverse:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080

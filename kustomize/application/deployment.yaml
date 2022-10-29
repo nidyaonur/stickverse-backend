@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stickverse-api
+  namespace: dev
+  labels:
+    app: stickverse-api
+spec:
+  selector:
+    matchLabels:
+      app: stickverse-api
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: stickverse-api
+    spec:
+      containers:
+      - name: stickverse
+        image: 766386820142.dkr.ecr.eu-central-1.amazonaws.com/stickverse:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
