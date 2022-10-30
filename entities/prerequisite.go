@@ -4,11 +4,11 @@ import "gorm.io/gorm"
 
 type Prerequisite struct {
 	gorm.Model
-	Type                string `gorm:"type:varchar(255);not null"`
-	PrerequisiteFormula string `gorm:"type:varchar(255);null"`
+	Type                string `gorm:"uniqueIndex:idx_unique_preq; type:varchar(255);not null"`
+	PrerequisiteFormula string `gorm:"uniqueIndex:idx_unique_preq; type:varchar(255);null"`
 
 	// Foreign keys
-	StructureID *uint `gorm:"null"`
+	StructureID *uint `gorm:"uniqueIndex:idx_unique_preq; null"`
 	ResearchID  *uint `gorm:"null"`
 	UnitID      *uint `gorm:"null"`
 
