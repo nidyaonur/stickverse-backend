@@ -33,6 +33,7 @@ type Repo struct {
 }
 
 func NewRepository(databaseUrl string) Repository {
+	fmt.Println("Connecting to database...", databaseUrl)
 	db, err := gorm.Open(postgres.Open(databaseUrl), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Could not connect to database", err)
