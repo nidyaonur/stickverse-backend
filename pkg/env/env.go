@@ -38,7 +38,7 @@ func GetEnvironment() *Environment {
 		ApplicationHost: ParseEnv("APPLICATION_HOST", false, "0.0.0.0"),
 		ApplicationPort: ParseEnv("APPLICATION_PORT", false, "8000"),
 		Debug:           ParseEnv("DEBUG", false, "false") == "true",
-		DatabaseUrl:     ParseEnv("DB_URL", false, "postgres://root:secret@localhost:5432/stickverse"),
+		DatabaseUrl:     ParseEnv("DB_URL", false, ""),
 		WriterDBUrl:     ParseEnv("DB_URL", false, ""),
 		ReaderDBUrl:     ParseEnv("DB_URL", false, ""),
 		JwtSecret:       ParseEnv("JWT_SECRET", false, "test_secret"),
