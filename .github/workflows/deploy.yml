@@ -13,10 +13,11 @@ jobs:
     steps:
     - name: Create env file
       run: |
-          touch ../.env
-          echo DB_URL=${{ secrets.DB_URL }} >> ../.env
-          cat ../.env
-          ls -al ../
+          touch .env
+          echo DB_URL=${{ secrets.DB_URL }} >> .env
+          cat .env
+          ls -al ./
+          ls -al /
           pwd
 
     - name: Check out code
