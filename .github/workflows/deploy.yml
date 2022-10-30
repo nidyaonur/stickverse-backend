@@ -16,6 +16,8 @@ jobs:
           touch .env
           echo DB_URL=${{ secrets.DB_URL }} >> .env
           cat .env
+          pwd
+          ls -al
 
     - name: Check out code
       uses: actions/checkout@v2
