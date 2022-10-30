@@ -458,7 +458,7 @@ func (d *data) initUtiltyUnits() {
 }
 
 func (d *data) initCharacteristics() {
-	entries := []*entities.Unit{
+	entries := []*entities.Characteristic{
 		// Fundamental
 		{
 			Name: "attack",

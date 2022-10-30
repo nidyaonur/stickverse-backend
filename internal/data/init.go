@@ -24,6 +24,10 @@ func (d *data) initGridMap() {
 	}
 
 	grids := []*entities.Grid{}
+	d.repo.FindAll(&grids, nil, nil, "")
+	if len(grids) > 0 {
+		return
+	}
 	for x := -10; x < 10; x++ {
 		for y := -10; y < 10; y++ {
 			grid := &entities.Grid{
@@ -85,6 +89,11 @@ func (d *data) fillGridWithLocations() {
 	structureMap := d.getStructureMap()
 	resourceMap := d.getResourceMap()
 
+	locations := []*entities.Location{}
+	d.repo.FindAll(&locations, nil, nil, "")
+	if len(locations) > 0 {
+		return
+	}
 	grids := []*entities.Grid{}
 	d.repo.FindAll(&grids, nil, nil, "")
 	for _, grid := range grids {
@@ -99,6 +108,7 @@ func (d *data) fillGridWithLocations() {
 					"en": "empty page",
 					"tr": "boş sayfa",
 				},
+				Workers:        100,
 				GridID:         grid.ID,
 				LocationTypeID: locationTypeMap["unoccupied"],
 			}
@@ -106,10 +116,13 @@ func (d *data) fillGridWithLocations() {
 
 			// create structure
 			structureBuilts := []*entities.StructureBuilt{}
-			for _, id := range structureMap {
+			for name, id := range structureMap {
 				structureBuilt := &entities.StructureBuilt{
 					StructureID: id,
 					LocationID:  location.ID,
+				}
+				if name == "townhall" {
+					structureBuilt.Level = 1
 				}
 				structureBuilts = append(structureBuilts, structureBuilt)
 			}
@@ -163,12 +176,17 @@ func (d *data) createPrerequisites() {
 }
 
 func (d *data) InitDataValues() {
-	//d.initResources()
-	//d.initLocationTypes()
-	//d.initStructures()
-	//d.initGridTypes()
-	//d.initGridMap()
-	//d.fillGridWithLocations()
-	//d.createPrerequisites()
+	d.initResources()
+	d.initLocationTypes()
+	d.initStructures()
+	d.initGridTypes()
+	d.initGridMap()
+	d.fillGridWithLocations()
+	d.createPrerequisites()
+	d.initAirCraftUnits()
+	d.initMeleeUnits()
+	d.initRangedUnits()
+	d.initUtiltyUnits()
+	d.initCharacteristics()
 
 }
