@@ -122,9 +122,9 @@ func (d *data) fillGridWithLocations() {
 			continue
 		}
 
-		occupied := grid.Occupied
+		existingLocations := len(grid.Locations)
 
-		for i := 0; i < int(grid.Capacity-occupied); i++ {
+		for i := 0; i < int(grid.Capacity-uint(existingLocations)); i++ {
 			// create location
 			location := &entities.Location{
 				Name: "emptyPage",
@@ -138,8 +138,6 @@ func (d *data) fillGridWithLocations() {
 				LocationTypeID: locationTypeMap["unoccupied"],
 			}
 			d.repo.Insert(location)
-			grid.Occupied++
-			d.repo.Update(grid)
 
 			// create structure
 			structureBuilts := []*entities.StructureBuilt{}
