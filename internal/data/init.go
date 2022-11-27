@@ -12,22 +12,16 @@ var (
 )
 
 func (d *data) initGridMap() {
-	gridTypeMap := make(map[string]uint)
-	for _, gridTypeName := range gridTypeNames {
-		gridType := entities.GridType{Name: gridTypeName}
-		gridTypeInterface, err := d.repo.FindFirstWithCondition(&gridType, "name = ?", gridTypeName)
-		if err != nil {
-			panic(err)
-		}
-		gridType = *gridTypeInterface.(*entities.GridType)
-		gridTypeMap[gridTypeName] = gridType.ID
+	gridTypeMap := d.getGridTypeMap()
+	if len(gridTypeMap) == 0 {
+		panic("grid type map is empty")
+	}
+	resourceMap := d.getResourceMap()
+	if len(resourceMap) == 0 {
+		panic("resource map is empty")
 	}
 
 	grids := []*entities.Grid{}
-	d.repo.FindAll(&grids, nil, nil, "")
-	if len(grids) > 0 {
-		return
-	}
 	for x := -10; x < 10; x++ {
 		for y := -10; y < 10; y++ {
 			grid := &entities.Grid{
@@ -42,35 +36,58 @@ func (d *data) initGridMap() {
 			switch {
 			case modX == 2 && modY == 2:
 				grid.GridTypeID = gridTypeMap["printer"]
+				reosurceID := resourceMap["ink"]
+				grid.ResourceID = &reosurceID
 				fmt.Println("printer")
 			case modX == 2 && modY == 7:
 				grid.GridTypeID = gridTypeMap["pencilBox"]
+				reosurceID := resourceMap["coal"]
+				grid.ResourceID = &reosurceID
 				fmt.Println("pencilBox")
 			case modX == 7 && modY == 2:
 				grid.GridTypeID = gridTypeMap["recycleBin"]
+				reosurceID := resourceMap["paper"]
+				grid.ResourceID = &reosurceID
 				fmt.Println("recycleBin")
 			case modX == 7 && modY == 7:
 				grid.GridTypeID = gridTypeMap["dustBin"]
+				reosurceID := resourceMap["eraser"]
+				grid.ResourceID = &reosurceID
 				fmt.Println("dustBin")
 			case modX == 1 && modY == 1 || // first column
 				modX == 1 && modY == 3 ||
-				modX == 1 && modY == 6 ||
-				modX == 1 && modY == 8 ||
 				modX == 3 && modY == 1 || // second column
-				modX == 3 && modY == 3 ||
+				modX == 3 && modY == 3:
+				grid.GridTypeID = gridTypeMap["table"]
+				grid.Capacity = 10
+				reosurceID := resourceMap["ink"]
+				grid.ResourceID = &reosurceID
+			case modX == 1 && modY == 6 ||
+				modX == 1 && modY == 8 ||
 				modX == 3 && modY == 6 ||
-				modX == 3 && modY == 8 ||
-				modX == 6 && modY == 1 || // third column
+				modX == 3 && modY == 8:
+				grid.GridTypeID = gridTypeMap["table"]
+				grid.Capacity = 10
+				reosurceID := resourceMap["coal"]
+				grid.ResourceID = &reosurceID
+
+			case modX == 6 && modY == 1 || // third column
 				modX == 6 && modY == 3 ||
-				modX == 6 && modY == 6 ||
-				modX == 6 && modY == 8 ||
 				modX == 8 && modY == 1 || // fourth column
-				modX == 8 && modY == 3 ||
+				modX == 8 && modY == 3:
+				grid.GridTypeID = gridTypeMap["table"]
+				grid.Capacity = 10
+				reosurceID := resourceMap["paper"]
+				grid.ResourceID = &reosurceID
+
+			case modX == 6 && modY == 6 ||
+				modX == 6 && modY == 8 ||
 				modX == 8 && modY == 6 ||
 				modX == 8 && modY == 8:
 				grid.GridTypeID = gridTypeMap["table"]
-				fmt.Println("table")
 				grid.Capacity = 10
+				reosurceID := resourceMap["eraser"]
+				grid.ResourceID = &reosurceID
 			default:
 				grid.GridTypeID = gridTypeMap["floor"]
 				fmt.Println("floor")
@@ -86,21 +103,28 @@ func (d *data) initGridMap() {
 
 func (d *data) fillGridWithLocations() {
 	locationTypeMap := d.getLocationTypeMap()
-	structureMap := d.getStructureMap()
-	resourceMap := d.getResourceMap()
-
-	locations := []*entities.Location{}
-	d.repo.FindAll(&locations, nil, nil, "")
-	if len(locations) > 0 {
-		return
+	if len(locationTypeMap) == 0 {
+		panic("location type map is empty")
 	}
+	structureMap := d.getStructureMap()
+	if len(structureMap) == 0 {
+		panic("structure map is empty")
+	}
+	resourceMap := d.getResourceMap()
+	if len(resourceMap) == 0 {
+		panic("resource map is empty")
+	}
+
 	grids := []*entities.Grid{}
 	d.repo.FindAll(&grids, nil, nil, "")
 	for _, grid := range grids {
 		if grid.GridType.Name != "table" {
 			continue
 		}
-		for i := 0; i < int(grid.Capacity-grid.Occupied); i++ {
+
+		occupied := grid.Occupied
+
+		for i := 0; i < int(grid.Capacity-occupied); i++ {
 			// create location
 			location := &entities.Location{
 				Name: "emptyPage",
@@ -110,9 +134,12 @@ func (d *data) fillGridWithLocations() {
 				},
 				Workers:        100,
 				GridID:         grid.ID,
+				GridIndex:      int(grid.Occupied) + i,
 				LocationTypeID: locationTypeMap["unoccupied"],
 			}
 			d.repo.Insert(location)
+			grid.Occupied++
+			d.repo.Update(grid)
 
 			// create structure
 			structureBuilts := []*entities.StructureBuilt{}
@@ -135,6 +162,10 @@ func (d *data) fillGridWithLocations() {
 					ResourceID: id,
 					LocationID: location.ID,
 				}
+				if id == *grid.ResourceID {
+					locationResource.Multiplier = 0.3
+				}
+
 				locationResources = append(locationResources, locationResource)
 			}
 			d.repo.Insert(locationResources)
@@ -143,35 +174,43 @@ func (d *data) fillGridWithLocations() {
 }
 
 func (d *data) createPrerequisites() {
-	preqs := []*entities.Prerequisite{}
+	preqs := []*entities.StructurePrerequisite{}
 	structureTypes := []*entities.Structure{}
 	d.repo.FindAll(&structureTypes, nil, nil, "")
 	for _, structureType := range structureTypes {
 		switch structureType.Name {
 		case "townhall":
-			preqs = append(preqs, &entities.Prerequisite{
-				StructureID:         &structureType.ID,
-				Type:                "resource",
-				PrerequisiteFormula: "coal:1:exp:1.2:50",
-			}, &entities.Prerequisite{
-				StructureID:         &structureType.ID,
-				Type:                "resource",
-				PrerequisiteFormula: "paper:3:exp:1.1:50",
+			preqs = append(preqs, &entities.StructurePrerequisite{
+				StructureID: structureType.ID,
+				UniqueID:    "townhall:resource:coal",
+				Type:        "resource",
+				SubType:     "coal",
+				Formula:     "exp:2:50",
+			}, &entities.StructurePrerequisite{
+				StructureID: structureType.ID,
+				UniqueID:    "townhall:resource:paper",
+				Type:        "resource",
+				SubType:     "paper",
+				Formula:     "exp:1.5:50",
 			})
 		case "airport":
-			preqs = append(preqs, &entities.Prerequisite{
-				StructureID:         &structureType.ID,
-				Type:                "resource",
-				PrerequisiteFormula: "coal:1:exp:1.2:50",
-			}, &entities.Prerequisite{
-				StructureID:         &structureType.ID,
-				Type:                "resource",
-				PrerequisiteFormula: "paper:1:exp:1.2:50",
+			preqs = append(preqs, &entities.StructurePrerequisite{
+				StructureID: structureType.ID,
+				UniqueID:    "airport:resource:coal",
+				Type:        "resource",
+				SubType:     "coal",
+				Formula:     "exp:1.5:50",
+			}, &entities.StructurePrerequisite{
+				StructureID: structureType.ID,
+				UniqueID:    "airport:resource:paper",
+				Type:        "resource",
+				SubType:     "paper",
+				Formula:     "exp:2:50",
 			})
 		}
 
 	}
-	d.repo.Insert(&preqs)
+	d.repo.Upsert(&preqs, "structure_prerequisites_unique_id_key", true, []string{"formula", "amount"})
 
 }
 

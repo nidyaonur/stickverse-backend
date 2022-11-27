@@ -1,6 +1,10 @@
 package data
 
-import "github.com/nidyaonur/stickverse-backend/entities"
+import (
+	"fmt"
+
+	"github.com/nidyaonur/stickverse-backend/entities"
+)
 
 func (d *data) initResources() {
 	entries := []*entities.Resource{
@@ -49,7 +53,7 @@ func (d *data) initResources() {
 			},
 		},
 	}
-	d.repo.Insert(entries)
+	d.repo.Upsert(&entries, "resources_name_key", true, []string{"name_local", "description"})
 
 }
 
@@ -78,7 +82,7 @@ func (d *data) initLocationTypes() {
 			},
 		},
 	}
-	d.repo.Insert(entries)
+	d.repo.Upsert(&entries, "location_types_name_key", true, []string{"name_local", "description"})
 }
 
 func (d *data) initStructures() {
@@ -194,7 +198,7 @@ func (d *data) initStructures() {
 			},
 		},
 	}
-	d.repo.Insert(entries)
+	d.repo.Upsert(&entries, "structures_name_key", true, []string{"name_local", "description"})
 
 }
 
@@ -267,7 +271,7 @@ func (d *data) initAirCraftUnits() {
 			},
 		},
 	}
-	d.repo.Insert(entries)
+	d.repo.Upsert(&entries, "units_name_key", true, []string{"name_local", "description"})
 
 }
 
@@ -340,7 +344,7 @@ func (d *data) initMeleeUnits() {
 			},
 		},
 	}
-	d.repo.Insert(entries)
+	d.repo.Upsert(&entries, "units_name_key", true, []string{"name_local", "description"})
 
 }
 
@@ -402,7 +406,7 @@ func (d *data) initRangedUnits() {
 			},
 		},
 	}
-	d.repo.Insert(entries)
+	d.repo.Upsert(&entries, "units_name_key", true, []string{"name_local", "description"})
 
 }
 
@@ -453,7 +457,7 @@ func (d *data) initUtiltyUnits() {
 			},
 		},
 	}
-	d.repo.Insert(entries)
+	d.repo.Upsert(&entries, "units_name_key", true, []string{"name_local", "description"})
 
 }
 
@@ -494,10 +498,10 @@ func (d *data) initCharacteristics() {
 			},
 		},
 		{
-			Name: "evade",
+			Name: "evasion",
 			NameLocal: entities.JSONMap{
-				"en": "Evade",
-				"tr": "Kaçma",
+				"en": "Evasion",
+				"tr": "Kaçınma",
 			},
 			Description: entities.JSONMap{
 				"en": "DescriptionEvade",
@@ -505,9 +509,9 @@ func (d *data) initCharacteristics() {
 			},
 		},
 		{
-			Name: "targetable",
+			Name: "targetability",
 			NameLocal: entities.JSONMap{
-				"en": "Targetable",
+				"en": "Targetability",
 				"tr": "Hedeflenebilirlik",
 			},
 			Description: entities.JSONMap{
@@ -516,10 +520,10 @@ func (d *data) initCharacteristics() {
 			},
 		},
 		{
-			Name: "carriable",
+			Name: "carriability",
 			NameLocal: entities.JSONMap{
-				"en": "Carriable",
-				"tr": "Taşınabilir",
+				"en": "Carriability",
+				"tr": "Taşınabilirlik",
 			},
 			Description: entities.JSONMap{
 				"en": "DescriptionCarriable",
@@ -604,21 +608,10 @@ func (d *data) initCharacteristics() {
 			},
 		},
 		{
-			Name: "cariability",
+			Name: "capacity",
 			NameLocal: entities.JSONMap{
-				"en": "Cariability",
-				"tr": "Taşınabilirlik",
-			},
-			Description: entities.JSONMap{
-				"en": "DescriptionCariability",
-				"tr": "DescriptionCariability",
-			},
-		},
-		{
-			Name: "cariability",
-			NameLocal: entities.JSONMap{
-				"en": "Cariability",
-				"tr": "Taşınabilirlik",
+				"en": "Capacity",
+				"tr": "Kapasite",
 			},
 			Description: entities.JSONMap{
 				"en": "DescriptionCariability",
@@ -626,7 +619,7 @@ func (d *data) initCharacteristics() {
 			},
 		},
 	}
-	d.repo.Insert(entries)
+	d.repo.Upsert(&entries, "characteristics_name_key", true, []string{"name_local", "description"})
 }
 
 func (d *data) initGridTypes() {
@@ -698,7 +691,7 @@ func (d *data) initGridTypes() {
 			},
 		},
 	}
-	d.repo.Insert(entries)
+	d.repo.Upsert(&entries, "grid_types_name_key", true, []string{"name_local", "description"})
 }
 
 func (d *data) getResourceMap() map[string]uint {
@@ -718,6 +711,7 @@ func (d *data) getLocationTypeMap() map[string]uint {
 	for _, locationType := range locationTypes {
 		locationTypeMap[locationType.Name] = locationType.ID
 	}
+	fmt.Println("locationTypeMap", locationTypeMap)
 	return locationTypeMap
 }
 
@@ -728,6 +722,7 @@ func (d *data) getStructureMap() map[string]uint {
 	for _, structure := range structures {
 		structureMap[structure.Name] = structure.ID
 	}
+	fmt.Println("structureMap", structureMap)
 	return structureMap
 }
 
@@ -738,5 +733,6 @@ func (d *data) getGridTypeMap() map[string]uint {
 	for _, gridType := range gridTypes {
 		gridTypeMap[gridType.Name] = gridType.ID
 	}
+	fmt.Println("gridTypeMap", gridTypeMap)
 	return gridTypeMap
 }

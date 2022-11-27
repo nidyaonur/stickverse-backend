@@ -4,12 +4,12 @@ import "gorm.io/gorm"
 
 type Structure struct {
 	gorm.Model
-	Name               string         `gorm:"unique;not null"`
-	NameLocal          JSONMap        `gorm:"type:jsonb"`
-	Description        JSONMap        `gorm:"type:jsonb"`
-	UpgradeTimeFormula string         `gorm:"not null"`
-	Prerequisites      []Prerequisite `gorm:"foreignKey:StructureID"`
-	Resources          []Resource     `gorm:"many2many:structure_resources"`
+	Name               string                  `gorm:"unique;not null"`
+	NameLocal          JSONMap                 `gorm:"type:jsonb"`
+	Description        JSONMap                 `gorm:"type:jsonb"`
+	UpgradeTimeFormula string                  `gorm:"not null"`
+	Prerequisites      []StructurePrerequisite `gorm:"foreignKey:StructureID"`
+	Resources          []Resource              `gorm:"many2many:structure_resources"`
 }
 
 func (s *Structure) BeforeCreate(tx *gorm.DB) (err error) {

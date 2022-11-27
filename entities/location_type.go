@@ -8,7 +8,7 @@ import (
 
 type LocationType struct {
 	gorm.Model
-	Name        string  `gorm:"index:,unique"`
+	Name        string  `gorm:"unique;not null"`
 	NameLocal   JSONMap `gorm:"type:jsonb"`
 	Description JSONMap `gorm:"type:jsonb"`
 }

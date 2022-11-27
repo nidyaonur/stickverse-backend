@@ -13,6 +13,7 @@ import (
 type Repository interface {
 	CloseDBConnection()
 	Insert(i interface{}) (interface{}, error)
+	Upsert(i interface{}, constraint string, update bool, updateCols []string) (interface{}, error)
 	Update(i interface{}) (interface{}, error)
 	Delete(i interface{}) error
 	DeleteOnCondition(i interface{}, condition string) error
@@ -45,6 +46,7 @@ func NewRepository(databaseUrl string) Repository {
 		&entities.LoginHistory{},
 		// Alliance
 		&entities.Alliance{},
+		&entities.Unit{},
 		&entities.AllianceMember{},
 		&entities.MembershipAction{},
 		&entities.MembershipHistory{},
@@ -59,12 +61,12 @@ func NewRepository(databaseUrl string) Repository {
 		&entities.Structure{},
 		&entities.StructureResource{},
 		&entities.StructureBuilt{},
-		&entities.Prerequisite{},
+		&entities.ResearchPrerequisite{},
+		&entities.StructurePrerequisite{},
 		&entities.Resource{},
 		&entities.Research{},
 		&entities.ResearchLevel{},
 		&entities.ResearchResource{},
-		&entities.Unit{},
 		&entities.UnitCharacteristic{},
 		&entities.UnitCost{},
 		&entities.Characteristic{},
@@ -89,7 +91,17 @@ func (r *Repo) CloseDBConnection() {
 }
 
 func (r *Repo) Insert(i interface{}) (interface{}, error) {
-	err := r.db.Clauses(clause.OnConflict{UpdateAll: true}).Create(i).Error
+	err := r.db.Clauses(clause.OnConflict{DoNothing: true}).Create(i).Error
+	return i, err
+}
+
+func (r *Repo) Upsert(i interface{}, constraint string, update bool, updateCols []string) (interface{}, error) {
+	err := r.db.Debug().Clauses(clause.OnConflict{
+		DoNothing:    !update,
+		UpdateAll:    len(updateCols) == 0,
+		DoUpdates:    clause.AssignmentColumns(updateCols),
+		OnConstraint: constraint,
+	}).Create(i).Error
 	return i, err
 }
 

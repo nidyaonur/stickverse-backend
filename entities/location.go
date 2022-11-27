@@ -12,9 +12,9 @@ type Location struct {
 	Workers        uint64             `gorm:"null"`
 	UserID         *uint              `gorm:"null"`
 	User           *User              `gorm:"foreignkey:UserID"`
-	GridID         uint               `gorm:"null"`
+	GridID         uint               `gorm:"uniqueIndex:grid_id_index;null"`
 	Grid           Grid               `gorm:"foreignkey:GridID"`
-	GridIndex      int                `gorm:"not null"`
+	GridIndex      int                `gorm:"uniqueIndex:grid_id_index;null"`
 	Units          []LocationUnit     `gorm:"foreignkey:LocationID"`
 	Resources      []LocationResource `gorm:"foreignkey:LocationID"`
 	Structures     []StructureBuilt   `gorm:"foreignkey:LocationID"`

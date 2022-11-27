@@ -25,8 +25,11 @@ type StructureBuilt struct {
 func (sb *StructureBuilt) UpgradeCost() map[string]float64 {
 	costMap := map[string]float64{}
 	for _, prereq := range sb.Structure.Prerequisites {
-		preqConstraints := strings.Split(prereq.PrerequisiteFormula, ":")
-		increaseFunc := preqConstraints[2]
+		if prereq.Type != "resource" {
+			continue
+		}
+		preqConstraints := strings.Split(prereq.Formula, ":")
+		increaseFunc := preqConstraints[0]
 		levelMultiplier, _ := strconv.ParseFloat(preqConstraints[1], 64)
 		baseQuantity, _ := strconv.ParseFloat(preqConstraints[len(preqConstraints)-1], 64)
 		fmt.Println(increaseFunc, levelMultiplier, baseQuantity, preqConstraints)
@@ -38,7 +41,7 @@ func (sb *StructureBuilt) UpgradeCost() map[string]float64 {
 			requiredQuantity = baseQuantity * math.Pow(levelMultiplier, float64(sb.Level))
 		}
 		fmt.Println("requiredQuantity", requiredQuantity)
-		costMap[preqConstraints[0]] = requiredQuantity
+		costMap[prereq.SubType] = requiredQuantity
 	}
 	return costMap
 }
